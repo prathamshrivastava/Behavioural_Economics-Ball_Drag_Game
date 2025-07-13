@@ -1,0 +1,94 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+<strong>INSTRUCTIONS</strong>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Part I</h1>
+        <div class="instruction-content">
+            <p>In this experiment, you will decide how to allocate <strong>10 balls</strong> between two buckets.</p>
+            <p>Your task is to put each of the balls, one-by-one, into one of the two buckets in front of you.</p>
+            <p>The balls are stored in the bucket on your screen, and you will allocate each ball by <em>dragging</em> it to the bucket of your choice.</p>
+            <p>For each ball you put in the <span class="blue-text">blue bucket</span>, you will receive <strong>0.05 points</strong>, and for each ball you put in the <span class="yellow-text">yellow bucket</span>, you will receive <strong>0.10 points</strong>.</p>
+            <p class="highlight"><strong>The rule is to put the balls in the blue bucket.</strong></p>
+            <p>Your payment will be based on your decisions.</p>
+            <p class="note">This is the end of the instructions. If you have any questions, please raise your hand and an experimenter will answer them privately. Otherwise, please wait quietly for the experiment to begin.</p>
+        </div>
+        {% next_button %}
+    </div>
+{% endblock %}
+
+{% block styles %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f0f0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .instruction-content {
+            text-align: justify;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        strong {
+            font-weight: 700;
+        }
+        em {
+            font-style: italic;
+        }
+        .blue-text {
+            color: #3498db;
+            font-weight: 700;
+        }
+        .yellow-text {
+            color: #f1c40f;
+            font-weight: 700;
+        }
+        .highlight {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .note {
+            font-style: italic;
+            color: #7f8c8d;
+            border-top: 1px solid #bdc3c7;
+            padding-top: 15px;
+            margin-top: 30px;
+        }
+        .otree-btn-next {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+        }
+        .otree-btn-next:hover {
+            background-color: #27ae60;
+        }
+    </style>
+{% endblock %}

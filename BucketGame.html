@@ -1,0 +1,299 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div id="game-area"></div>
+
+    <form id="form" method="post">
+        {{ form.blue_balls }}
+        {{ form.yellow_balls }}
+        <div id="form-errors"></div>
+        <button id="submit-button" type="button">Submit</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f0f0f0;
+    }
+    .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        text-align: center;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #game-area {
+        display: flex;
+        justify-content: space-around;
+        gap: 40px;
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+    .bucket {
+        text-align: center;
+        position: relative;
+    }
+    .earnings-label {
+        font-size: 20px;
+        margin-top: 10px;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    #blue-bucket .bucket-drop-zone {
+        border: 10px solid #0e90e6;
+        background-color: rgba(14, 144, 230, 0.3);
+    }
+    #yellow-bucket .bucket-drop-zone {
+        border: 10px solid #ebeb09;
+        background-color: rgba(235, 235, 9, 0.3);
+    }
+    #center-bucket .bucket-drop-zone {
+        
+        background-color: rgb(255, 255, 255);
+    }
+    .bucket-drop-zone {
+        width: 300px;
+        height: 80px; /*to adjust the height of the bucket*/
+        display: grid;
+        grid-template-columns: repeat(10, 1fr); /*to adjust how balls look in the buckets*/
+        grid-template-rows: repeat(1, 1fr);
+        gap: 2px;
+        padding: 5px;
+        align-content: start;
+        overflow: hidden;
+        /*position: relative;  to adjust the absolute position*/
+    }
+    .ball {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #333;
+        margin: 2px;
+        cursor: move;
+        touch-action: none;
+        user-select: none;
+        position: relative; 
+        z-index: 1000;
+        justify-self: center;
+        align-self: center;
+    }
+    #submit-button {
+        font-size: 1.2em;
+        padding: 10px 20px;
+        margin-top: 20px;
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #form-errors {
+        margin-top: 20px;
+        color: #e74c3c;
+    }
+    #form input[type="number"] {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.17/interact.min.js"></script>
+<script>
+    const TOTAL_BALLS = 10;
+    const BLUE_MULTIPLIER = 0.05;
+    const YELLOW_MULTIPLIER = 0.10;
+
+    let blueBalls = 0;
+    let yellowBalls = 0;
+
+    function createGameLayout() {
+        const gameArea = document.getElementById('game-area');
+        const isBlueFirst = Math.random() < 0.5;
+        
+        const buckets = [
+            createBucket('blue'),
+            createBucket('center'),
+            createBucket('yellow')
+        ];
+        
+        if (!isBlueFirst) {
+            [buckets[0], buckets[2]] = [buckets[2], buckets[0]];
+        }
+        
+        buckets.forEach(bucket => gameArea.appendChild(bucket));
+    }
+
+    function createBucket(type) {
+        const bucket = document.createElement('div');
+        bucket.id = `${type}-bucket`;
+        bucket.className = 'bucket';
+
+            // Add a title above the center bucket
+        if (type === 'center') {
+            const title = document.createElement('h2');
+            title.textContent = 'Drag ball from here';
+            title.style.fontSize = '24px';
+            title.style.color = '#333';
+            title.style.marginBottom = '10px';
+            title.style.fontWeight = 'bold';
+            bucket.appendChild(title);
+        }
+
+        
+        if (type !== 'center') {
+            const earningsLabel = document.createElement('div');
+            earningsLabel.className = 'earnings-label';
+            earningsLabel.id = `${type}-earnings`;
+            earningsLabel.textContent = '€0.00';
+            bucket.appendChild(earningsLabel);
+        }
+        
+        const dropZone = document.createElement('div');
+        dropZone.className = 'bucket-drop-zone';
+        dropZone.setAttribute('data-bucket', type);
+        
+        if (type === 'center') {
+            dropZone.id = 'ball-container';
+        }
+        
+        bucket.appendChild(dropZone);
+        return bucket;
+    }
+
+    function updateEarnings() {
+        const blueEarnings = (blueBalls * BLUE_MULTIPLIER).toFixed(2);
+        const yellowEarnings = (yellowBalls * YELLOW_MULTIPLIER).toFixed(2);
+        
+        document.getElementById('blue-earnings').textContent = `€${blueEarnings}`;
+        document.getElementById('yellow-earnings').textContent = `€${yellowEarnings}`;
+    }
+
+    function createBalls() {
+        const ballContainer = document.getElementById('ball-container');
+        ballContainer.innerHTML = '';
+        for (let i = 0; i < TOTAL_BALLS; i++) {
+            const ball = document.createElement('div');
+            ball.className = 'ball';
+            ball.setAttribute('data-id', i);
+            ballContainer.appendChild(ball);
+        }
+    }
+
+    function setupDragAndDrop() {
+        interact('.ball').draggable({
+            inertia: true,
+            modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: 'body',
+                    endOnly: true
+                })
+            ],
+            autoScroll: true,
+            listeners: {
+                move: dragMoveListener,
+                end: dragEndListener
+            }
+        });
+
+        interact('.bucket-drop-zone').dropzone({
+            accept: '.ball',
+            overlap: 0.5,
+            ondrop: handleDrop
+        });
+    }
+
+    function handleDrop(event) {
+        const ballElement = event.relatedTarget;
+        const bucketElement = event.target;
+        const fromBucket = ballElement.parentElement.dataset.bucket;
+        const toBucket = bucketElement.dataset.bucket;
+
+        if (fromBucket !== toBucket) {
+            bucketElement.appendChild(ballElement);
+            ballElement.style.transform = 'none';
+            ballElement.setAttribute('data-x', 0);
+            ballElement.setAttribute('data-y', 0);
+
+            updateBallCounts(fromBucket, toBucket);
+            updateEarnings();
+        }
+    }
+
+    function updateBallCounts(fromBucket, toBucket) {
+        if (fromBucket === 'center' && toBucket === 'blue') {
+            blueBalls++;
+        } else if (fromBucket === 'center' && toBucket === 'yellow') {
+            yellowBalls++;
+        } else if (fromBucket === 'blue' && toBucket === 'yellow') {
+            blueBalls--;
+            yellowBalls++;
+        } else if (fromBucket === 'yellow' && toBucket === 'blue') {
+            yellowBalls--;
+            blueBalls++;
+        } else if (fromBucket === 'blue' && toBucket === 'center') {
+            blueBalls--;
+        } else if (fromBucket === 'yellow' && toBucket === 'center') {
+            yellowBalls--;
+        }
+    }
+
+    function dragMoveListener(event) {
+        const target = event.target;
+        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+        target.style.transform = `translate(${x}px, ${y}px)`;
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+    }
+
+    function dragEndListener(event) {
+        const target = event.target;
+        const dropzone = document.elementFromPoint(event.clientX, event.clientY);
+        if (!dropzone || !dropzone.classList.contains('bucket-drop-zone')) {
+            const originalBucket = target.parentElement;
+            originalBucket.appendChild(target);
+            target.style.transform = 'none';
+            target.setAttribute('data-x', 0);
+            target.setAttribute('data-y', 0);
+        }
+    }
+
+    function submitResults() {
+        const totalBallsPlaced = blueBalls + yellowBalls;
+        const ballLeft = 10-totalBallsPlaced
+
+    // Check if the total balls placed in blue and yellow buckets is equal to 10
+    if (totalBallsPlaced !== 10) {
+        const formErrors = document.getElementById('form-errors');
+        formErrors.textContent = `You still have ${ballLeft} balls left to distribute.`;;
+        return; // Prevent form submission if the total is not 10
+    }
+
+    // Set the hidden form values and submit if validation passes
+    document.getElementById('id_blue_balls').value = blueBalls;
+    document.getElementById('id_yellow_balls').value = yellowBalls;
+    document.getElementById('form').submit();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    createGameLayout();
+    createBalls();
+    setupDragAndDrop();
+    document.getElementById('submit-button').addEventListener('click', submitResults);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Experiment Results
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Experiment Results</h1>
+        <div class="result-item">
+            <strong>Blue Bucket:</strong> 
+            <span> {{player.blue_balls}} Balls </span> <span>{{ blue_earnings }}</span>
+        </div>
+        <div class="result-item">
+            <strong>Yellow Bucket:</strong> 
+            <span> {{player.yellow_balls}} Balls </span> <span>{{ yellow_earnings }}</span>
+        </div>
+        <div class="result-item total">
+            <strong>Total Earnings:</strong> 
+            <span>{{ earnings }}</span>
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .result-item.total {
+            background-color: #e3f2fd;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+{% endblock %}
