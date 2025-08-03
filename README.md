@@ -21,7 +21,7 @@ The rule of the task is to put the balls in Blue Container. The task challenges 
 
 Below is the interface where participants interact with the game:
 
-![Game Arena](./static/images/bdf35120-7f0c-4398-9712-4457d55a041f.png)
+![Game Arena](https://github.com/prathamshrivastava/Economics-Ball-Drag-Game/blob/main/GameArena.png)
 
 ### Instructions
 
